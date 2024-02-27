@@ -52,7 +52,7 @@ const Pokemon = () => {
           type='text'
           value={pokemonName}
           onChange={handleInputChange}
-          placeholder='名前か図鑑番号を入力'
+          placeholder='ポケモンの名前か図鑑番号を入力'
         />
         {pokemonData ? (
           <div>
@@ -63,14 +63,27 @@ const Pokemon = () => {
                 alt={pokemonData.name}
               />
             ) : (
-              <p>No image available</p>
+              <p>画像はありません</p>
             )}
             <h2>ステータス:</h2>
             <ul>
               {pokemonData.stats &&
                 pokemonData.stats.map(stat => (
                   <li key={stat.stat.name}>
-                    {stat.stat.name}: {stat.base_stat}
+                    {stat.stat.name === 'hp'
+                      ? 'HP'
+                      : stat.stat.name === 'attack'
+                      ? 'こうげき'
+                      : stat.stat.name === 'defense'
+                      ? 'ぼうぎょ'
+                      : stat.stat.name === 'speed'
+                      ? 'すばやさ'
+                      : stat.stat.name === 'special-defense'
+                      ? 'とくぼう'
+                      : stat.stat.name === 'special-attack'
+                      ? 'とくこう'
+                      : stat.stat.name}
+                    : {stat.base_stat}
                   </li>
                 ))}
             </ul>
