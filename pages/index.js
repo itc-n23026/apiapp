@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import PokemonStatusChart from '../components/PokemonStatusChart'
 
 const Pokemon = () => {
@@ -48,6 +48,27 @@ const Pokemon = () => {
     }
   }
 
+  const typeTranslations = {
+    normal: 'ノーマル',
+    fire: 'ほのお',
+    water: 'みず',
+    electric: 'でんき',
+    grass: 'くさ',
+    ice: 'こおり',
+    fighting: 'かくとう',
+    poison: 'どく',
+    ground: 'じめん',
+    flying: 'ひこう',
+    psychic: 'エスパー',
+    bug: 'むし',
+    rock: 'いわ',
+    ghost: 'ゴースト',
+    dragon: 'ドラゴン',
+    dark: 'あく',
+    steel: 'はがね',
+    fairy: 'フェアリー'
+  }
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center', flex: 1 }}>
@@ -66,6 +87,13 @@ const Pokemon = () => {
             ) : (
               <p>画像が見つかりません</p>
             )}
+            <h2>タイプ</h2>
+            <ul>
+              {pokemonData.types &&
+                pokemonData.types.map(type => (
+                  <li key={type.slot}>{typeTranslations[type.type.name]}</li>
+                ))}
+            </ul>
             <h2>ステータス</h2>
             <ul>
               {pokemonData.stats &&
@@ -92,7 +120,7 @@ const Pokemon = () => {
         ) : pokemonName !== '' ? (
           <p>Loading...</p>
         ) : (
-          <p>ポケモンの名前か図鑑番号を入力して検索できます</p>
+          <p>ポケモンの名前、または図鑑番号を入力して検索できます。</p>
         )}
         <p>
           ポケモンの英語名の確認は
