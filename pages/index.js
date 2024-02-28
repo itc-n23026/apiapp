@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import PokemonInput from '../components/PokemonInput'
 import PokemonInfo from '../components/PokemonInfo'
 import PokemonStatusChartComponent from '../components/PokemonStatusChartHS'
+import styles from '../styles/Pokemon.module.css'
 
 const Pokemon = () => {
   const [pokemonData, setPokemonData] = useState(null)
@@ -121,8 +122,8 @@ const Pokemon = () => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', flex: 1 }}>
+    <div className={styles['pokemon-container']}>
+      <div className={styles['pokemon-info-container']}>
         <PokemonInput
           value={pokemonName}
           onChange={handleInputChange}
