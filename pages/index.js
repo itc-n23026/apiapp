@@ -1,9 +1,44 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PokemonStatusChart from '../components/PokemonStatusChart'
 
 const Pokemon = () => {
   const [pokemonData, setPokemonData] = useState(null)
   const [pokemonName, setPokemonName] = useState('')
+  const [pokemonAbilities, setPokemonAbilities] = useState([])
+
+  useEffect(() => {
+    const fetchPokemonAbilities = async () => {
+      if (pokemonData) {
+        try {
+          const uniqueAbilities = pokemonData.abilities.reduce(
+            (unique, ability) => {
+              if (!unique.some(item => item.id === ability.ability.id)) {
+                unique.push(ability)
+              }
+              return unique
+            },
+            []
+          )
+
+          const abilitiesData = await Promise.all(
+            uniqueAbilities.map(async ability => {
+              const response = await fetch(ability.ability.url)
+              if (!response.ok) {
+                throw new Error('Network response was not ok')
+              }
+              const data = await response.json()
+              return data
+            })
+          )
+          setPokemonAbilities(abilitiesData)
+        } catch (error) {
+          console.error('Error fetching Pokemon abilities:', error)
+        }
+      }
+    }
+
+    fetchPokemonAbilities()
+  }, [pokemonData])
 
   const loadPokemonData = async () => {
     try {
@@ -93,6 +128,14 @@ const Pokemon = () => {
                 pokemonData.types.map(type => (
                   <li key={type.slot}>{typeTranslations[type.type.name]}</li>
                 ))}
+            </ul>
+            <h2>特性</h2>
+            <ul>
+              {pokemonAbilities.map(ability => (
+                <li key={ability.id}>
+                  {ability.names.find(name => name.language.name === 'ja').name}
+                </li>
+              ))}
             </ul>
             <h2>ステータス</h2>
             <ul>
