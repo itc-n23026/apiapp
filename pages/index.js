@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import PokemonStatusChart from '../components/PokemonStatusChart'
+import PokemonInput from '../components/PokemonInput'
+import PokemonInfo from '../components/PokemonInfo'
+import PokemonStatusChartComponent from '../components/PokemonStatusChartHS'
 
 const Pokemon = () => {
   const [pokemonData, setPokemonData] = useState(null)
@@ -10,26 +12,40 @@ const Pokemon = () => {
     const fetchPokemonAbilities = async () => {
       if (pokemonData) {
         try {
-          const uniqueAbilities = pokemonData.abilities.reduce(
-            (unique, ability) => {
-              if (!unique.some(item => item.id === ability.ability.id)) {
-                unique.push(ability)
-              }
-              return unique
-            },
-            []
-          )
+          let abilitiesData
+          if (pokemonData.id === 999 || pokemonData.id === 1000) {
+            const uniqueAbilities = pokemonData.abilities.reduce(
+              (unique, ability) => {
+                if (!unique.some(item => item.id === ability.ability.id)) {
+                  unique.push(ability)
+                }
+                return unique
+              },
+              []
+            )
 
-          const abilitiesData = await Promise.all(
-            uniqueAbilities.map(async ability => {
-              const response = await fetch(ability.ability.url)
-              if (!response.ok) {
-                throw new Error('Network response was not ok')
-              }
-              const data = await response.json()
-              return data
-            })
-          )
+            abilitiesData = await Promise.all(
+              uniqueAbilities.map(async ability => {
+                const response = await fetch(ability.ability.url)
+                if (!response.ok) {
+                  throw new Error('Network response was not ok')
+                }
+                const data = await response.json()
+                return data
+              })
+            )
+          } else {
+            abilitiesData = await Promise.all(
+              pokemonData.abilities.map(async ability => {
+                const response = await fetch(ability.ability.url)
+                if (!response.ok) {
+                  throw new Error('Network response was not ok')
+                }
+                const data = await response.json()
+                return data
+              })
+            )
+          }
           setPokemonAbilities(abilitiesData)
         } catch (error) {
           console.error('Error fetching Pokemon abilities:', error)
@@ -107,59 +123,19 @@ const Pokemon = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center', flex: 1 }}>
-        <input
-          type='text'
+        <PokemonInput
           value={pokemonName}
           onChange={handleInputChange}
+          onClick={handleButtonClick}
           placeholder='名前か図鑑番号を入力'
         />
-        <button onClick={handleButtonClick}>検索</button>
         {pokemonData ? (
-          <div>
-            <h1>{pokemonName}</h1>
-            {pokemonData.sprites && pokemonData.sprites.front_default ? (
-              <img src={pokemonData.sprites.front_default} alt={pokemonName} />
-            ) : (
-              <p>画像が見つかりません</p>
-            )}
-            <h2>タイプ</h2>
-            <ul>
-              {pokemonData.types &&
-                pokemonData.types.map(type => (
-                  <li key={type.slot}>{typeTranslations[type.type.name]}</li>
-                ))}
-            </ul>
-            <h2>特性</h2>
-            <ul>
-              {pokemonAbilities.map(ability => (
-                <li key={ability.id}>
-                  {ability.names.find(name => name.language.name === 'ja').name}
-                </li>
-              ))}
-            </ul>
-            <h2>ステータス</h2>
-            <ul>
-              {pokemonData.stats &&
-                pokemonData.stats.map(stat => (
-                  <li key={stat.stat.name}>
-                    {stat.stat.name === 'hp'
-                      ? 'HP'
-                      : stat.stat.name === 'attack'
-                      ? 'こうげき'
-                      : stat.stat.name === 'defense'
-                      ? 'ぼうぎょ'
-                      : stat.stat.name === 'speed'
-                      ? 'すばやさ'
-                      : stat.stat.name === 'special-defense'
-                      ? 'とくぼう'
-                      : stat.stat.name === 'special-attack'
-                      ? 'とくこう'
-                      : stat.stat.name}
-                    : {stat.base_stat}
-                  </li>
-                ))}
-            </ul>
-          </div>
+          <PokemonInfo
+            pokemonName={pokemonName}
+            pokemonData={pokemonData}
+            pokemonAbilities={pokemonAbilities}
+            typeTranslations={typeTranslations}
+          />
         ) : pokemonName !== '' ? (
           <p>Loading...</p>
         ) : (
@@ -177,24 +153,7 @@ const Pokemon = () => {
         </p>
       </div>
       {pokemonData && pokemonData.stats && pokemonData.stats.length > 0 && (
-        <div style={{ marginLeft: 'auto', flex: 1 }}>
-          <PokemonStatusChart
-            pokemonData={[
-              { status: 'HP', value: pokemonData.stats[0].base_stat },
-              { status: 'こうげき', value: pokemonData.stats[1].base_stat },
-              { status: 'ぼうぎょ', value: pokemonData.stats[2].base_stat },
-              { status: 'すばやさ', value: pokemonData.stats[5].base_stat },
-              {
-                status: 'とくぼう',
-                value: pokemonData.stats[4].base_stat
-              },
-              {
-                status: 'とくこう',
-                value: pokemonData.stats[3].base_stat
-              }
-            ]}
-          />
-        </div>
+        <PokemonStatusChartComponent pokemonData={pokemonData} />
       )}
     </div>
   )
